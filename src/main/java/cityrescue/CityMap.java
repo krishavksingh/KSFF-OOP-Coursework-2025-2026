@@ -1,6 +1,8 @@
 package cityrescue;
 
 import java.util.Arrays;
+import cityrescue.exceptions.*;
+import cityrescue.exceptions.InvalidLocationException;
 
 public class CityMap { // Map Implementation containing rows cols and whether a space is blocked
     private int gridRows;
