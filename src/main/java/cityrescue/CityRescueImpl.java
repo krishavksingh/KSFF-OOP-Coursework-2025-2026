@@ -11,7 +11,7 @@ import cityrescue.exceptions.*;
  */
 public class CityRescueImpl implements CityRescue {
     CityMap map;
-    // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
+    // TODO: add fields (arrays for stations/units/incidents, counters, tick, etc.)
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
