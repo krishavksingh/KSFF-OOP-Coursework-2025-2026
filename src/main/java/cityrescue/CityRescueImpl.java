@@ -15,7 +15,8 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
-        map = new CityMap(width, height);
+        if (width > 0 && height > 0) {map = new CityMap(width, height);}
+            else throw new InvalidGridException("Width/Height is lower than zero");
     }
 
     @Override
@@ -25,13 +26,24 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void addObstacle(int x, int y) throws InvalidLocationException {
-        map.setBlocked(x, y);
+        try{
+            map.setBlocked(x, y);
+        }
+        catch (Exception e){
+            throw new InvalidLocationException("Out of bounds");
+        }
+        
         
     }
 
     @Override
     public void removeObstacle(int x, int y) throws InvalidLocationException {
-        map.setUnblocked(x, y);
+        try{
+            map.setUnblocked(x, y);
+        }
+        catch (Exception e){
+            throw new InvalidLocationException("Out of bounds");
+        }
         
     }
 
