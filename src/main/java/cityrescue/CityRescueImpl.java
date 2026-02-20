@@ -10,31 +10,29 @@ import cityrescue.exceptions.*;
  * You may add additional classes in any package(s) you like.
  */
 public class CityRescueImpl implements CityRescue {
-
+    CityMap map;
     // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        map = new CityMap(width, height);
     }
 
     @Override
     public int[] getGridSize() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        return map.getSize();
     }
 
     @Override
     public void addObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        map.setBlocked(x, y);
+        
     }
 
     @Override
     public void removeObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        map.setUnblocked(x, y);
+        
     }
 
     @Override
