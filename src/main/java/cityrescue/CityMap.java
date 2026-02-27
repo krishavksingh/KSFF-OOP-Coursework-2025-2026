@@ -1,8 +1,6 @@
 package cityrescue;
 
 import java.util.Arrays;
-import cityrescue.exceptions.*;
-import cityrescue.exceptions.InvalidLocationException;
 
 public class CityMap { // Map Implementation containing rows cols and whether a space is blocked
     private int gridRows;
@@ -13,12 +11,14 @@ public class CityMap { // Map Implementation containing rows cols and whether a 
         gridCols = cols;
         gridRows = rows;
         blocked = new boolean[rows][cols];
-        Arrays.fill(blocked, false);
+        for (int i = 0; i < blocked.length; i++) {
+            Arrays.fill(blocked[i], false);
+        }
+        
     }
     public int[] getSize()
     {
         return new int[]{gridRows, gridCols};
-        
     }
     public void setBlocked(int row, int col)
     {
