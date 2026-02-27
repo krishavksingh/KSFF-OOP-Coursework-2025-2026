@@ -7,10 +7,12 @@ public class Unit {
     protected UnitStatus status;
     protected int stationID;
     protected int unitID;
+    protected int incidentId;
     protected int x;
     protected int y;
     protected int x_dest;
     protected int y_dest;
+    protected int worktick;
 
     public UnitStatus getStatus()
     {
@@ -25,6 +27,7 @@ public class Unit {
         y = _y;
         x_dest = _x;
         y_dest = _y;
+        incidentId = -1;
     }
     
 }

@@ -15,7 +15,7 @@ public class Station {
         xCoord = _xCoord;
         yCoord = _yCoord;
         id = _id;
-        maxUnits = 1;
+        maxUnits = 5;
 
     }
     
