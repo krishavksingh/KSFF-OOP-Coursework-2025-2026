@@ -187,15 +187,24 @@ public class CityRescueImpl implements CityRescue {
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
         if (units[unitId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); // do Invalid Capacity
+            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
         }
         units[unitId-1] = null;
     }
 
     @Override
     public void transferUnit(int unitId, int newStationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (stations[newStationId-1] == null)
+        {
+            throw new IDNotRecognisedException("Station ID is invalid"); 
+        }
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
+        }
+
+        units[unitId-1].x_dest = stations[newStationId-1].xCoord;
+        units[unitId-1].y_dest = stations[newStationId-1].yCoord;
     }
 
     @Override
