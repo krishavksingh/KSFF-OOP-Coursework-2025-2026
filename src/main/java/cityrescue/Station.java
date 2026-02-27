@@ -7,6 +7,7 @@ public class Station {
     int yCoord;
     int id;
     int maxUnits;
+    
 
     public Station(String _name, int _xCoord, int _yCoord, int _id)
     {
