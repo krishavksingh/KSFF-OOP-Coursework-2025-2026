@@ -2,6 +2,7 @@ package cityrescue;
 
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
+import cityrescue.units.*;
 
 /**
  * CityRescueImpl (Starter)
@@ -16,22 +17,35 @@ public class CityRescueImpl implements CityRescue {
 
     CityMap map; 
     Station[] stations;
+    Unit[] units;
     Incident[] incidents;
     
     int station_num;
-    int nextStationId;
+    int unit_num;
     int incident_num;
+    int nextStationId;
+    int nextUnitId;
+    int nextIncidentId;
+    
+    
     // TODO: add fields (arrays for stations/units/incidents, counters, tick, etc.)
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
         if (width > 0 && height > 0) {
             map = new CityMap(width, height);
+
             stations = new Station[MAX_STATIONS];
+            units = new Unit[MAX_UNITS];
             incidents = new Incident[MAX_INCIDENTS];
+
             station_num = 0;
+            unit_num = 0;
             incident_num = 0;
+
             nextStationId = 1;
+            nextUnitId = 1;
+            nextIncidentId = 1;
 
         
         }
@@ -123,26 +137,94 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        Station homeStation = stations[stationId-1];
+        if (homeStation == null)
+        {
+            throw new IDNotRecognisedException("Station ID is invalid"); // do Invalid Capacity
+        }
+
+        int numUnitsAtStat = 0;
+        for (Unit unit: units) {
+            if (unit.x == homeStation.xCoord && unit.y == homeStation.yCoord){
+                numUnitsAtStat += 1;
+            }
+        }
+        if (homeStation.maxUnits - numUnitsAtStat == 0){
+            throw new InvalidUnitException("The Station has reached max units.");      
+        }
+
+        
+        int unitID = nextUnitId;
+        Unit newUnit;
+        int stationX = stations[stationId-1].xCoord;
+        int stationY = stations[stationId-1].yCoord;
+
+        if (type == UnitType.AMBULANCE) 
+        {
+            newUnit = new Ambulance(stationId, nextUnitId, stationX, stationY);
+        }
+        else if (type == UnitType.FIRE_ENGINE) 
+        {
+            newUnit = new FireEngine(stationId, nextUnitId, stationX, stationY);
+        }
+        else if (type == UnitType.POLICE_CAR) 
+        {
+            newUnit = new PoliceCar(stationId, nextUnitId, stationX, stationY);
+        }
+        else {
+            throw new InvalidUnitException("Unit type cannot be null.");
+        }
+        
+        units[nextUnitId-1] = newUnit;
+        nextUnitId += 1;
+        return unitID;
+        
+
+
     }
 
     @Override
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
+        }
+        if(units[unitId-1].status!=UnitStatus.EN_ROUTE||units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
+        else throw new IllegalStateException("Unit cannot be En route or At scene."); 
     }
 
     @Override
     public void transferUnit(int unitId, int newStationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (stations[newStationId-1] == null)
+        {
+            throw new IDNotRecognisedException("Station ID is invalid"); 
+        }
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
+        }
+
+        units[unitId-1].x_dest = stations[newStationId-1].xCoord;
+        units[unitId-1].y_dest = stations[newStationId-1].yCoord;
     }
 
     @Override
     public void setUnitOutOfService(int unitId, boolean outOfService) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); 
+        }
+        if (outOfService) {
+            if (units[unitId-1].status == UnitStatus.IDLE){
+                units[unitId-1].status = UnitStatus.OUT_OF_SERVICE;
+            }    
+            else{
+                throw new IllegalStateException("Unit must be Idle before being out of service.");
+            }     
+        }
+        else {
+            units[unitId-1].status = UnitStatus.IDLE;
+        }
     }
 
     @Override
