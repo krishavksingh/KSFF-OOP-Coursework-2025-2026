@@ -84,19 +84,7 @@ public class CityRescueImpl implements CityRescue {
         Station station = new Station(name, x, y, nextStationId);
         stations[nextStationId-1] = station;
         
-
-        boolean nextIdFound = false;
-        int count = 0;
-        while (nextIdFound == false) {
-            if (stations[count] == (null))
-            {
-                nextStationId = count + 1;
-                nextIdFound = true;
-                
-            }
-            count += 1;
-                        
-        }
+        nextStationId += 1;
 
         return stationID;
     }
@@ -110,18 +98,7 @@ public class CityRescueImpl implements CityRescue {
         stations[stationId-1] = null;
         station_num -= 1;
 
-        boolean nextIdFound = false;
-        int count = 0;
-        while (nextIdFound == false) {
-            if (stations[count].equals(null))
-            {
-                nextStationId = count + 1;
-                nextIdFound = true;
-                
-            }
-            count += 1;
-                        
-        }
+                      
     }
 
     @Override
