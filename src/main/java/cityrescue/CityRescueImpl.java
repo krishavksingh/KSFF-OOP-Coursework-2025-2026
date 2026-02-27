@@ -88,7 +88,7 @@ public class CityRescueImpl implements CityRescue {
         boolean nextIdFound = false;
         int count = 0;
         while (nextIdFound == false) {
-            if (stations[count].equals(null))
+            if (stations[count] == (null))
             {
                 nextStationId = count + 1;
                 nextIdFound = true;
