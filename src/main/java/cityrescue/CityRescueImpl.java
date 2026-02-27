@@ -28,7 +28,7 @@ public class CityRescueImpl implements CityRescue {
     int nextIncidentId;
     
     
-    // TODO: add fields (arrays for stations/units/incidents, counters, tick, etc.)
+    // TODO: add fields (counters, tick, etc.)
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
@@ -145,8 +145,10 @@ public class CityRescueImpl implements CityRescue {
 
         int numUnitsAtStat = 0;
         for (Unit unit: units) {
-            if (unit.x == homeStation.xCoord && unit.y == homeStation.yCoord){
-                numUnitsAtStat += 1;
+            if (unit != null){
+                if (unit.x == homeStation.xCoord && unit.y == homeStation.yCoord){
+                    numUnitsAtStat += 1;
+                }
             }
         }
         if (homeStation.maxUnits - numUnitsAtStat == 0){
@@ -177,6 +179,7 @@ public class CityRescueImpl implements CityRescue {
         
         units[nextUnitId-1] = newUnit;
         nextUnitId += 1;
+        unit_num += 1;
         return unitID;
         
 
@@ -229,14 +232,26 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getUnitIds() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] unitIds = new int[unit_num-1];
+        for (int i = 0; i < unitIds.length; i++) {
+            unitIds[i] = units[i].unitID;
+        }
+        return unitIds;
     }
 
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); 
+        }
+        Unit unit = units[unitId-1];
+
+        String incident;
+        if (unit.incidentId == -1) incident = "-";
+        else incident = ((Integer)unit.incidentId).toString();
+        String view = String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s WORK=%d", unit.unitID, unit.stationID, unit.x, unit.y, unit.status, incident, unit.worktick);
+        return view;
     }
 
     @Override
