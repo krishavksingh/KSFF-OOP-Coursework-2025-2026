@@ -1,6 +1,5 @@
 package cityrescue;
 
-import cityrescue.*;
 import cityrescue.enums.*;
 
 public class Unit {
