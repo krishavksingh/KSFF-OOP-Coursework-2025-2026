@@ -189,7 +189,8 @@ public class CityRescueImpl implements CityRescue {
         {
             throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
         }
-        units[unitId-1] = null;
+        if(units[unitId-1].status!=UnitStatus.EN_ROUTE||units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
+        else throw new IllegalStateException("Unit cannot be En route or At scene."); 
     }
 
     @Override
@@ -209,8 +210,21 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void setUnitOutOfService(int unitId, boolean outOfService) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (units[unitId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); 
+        }
+        if (outOfService) {
+            if (units[unitId-1].status == UnitStatus.IDLE){
+                units[unitId-1].status = UnitStatus.OUT_OF_SERVICE;
+            }    
+            else{
+                throw new IllegalStateException("Unit must be Idle before being out of service.");
+            }     
+        }
+        else {
+            units[unitId-1].status = UnitStatus.IDLE;
+        }
     }
 
     @Override
