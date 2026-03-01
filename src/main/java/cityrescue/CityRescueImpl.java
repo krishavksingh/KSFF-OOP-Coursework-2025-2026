@@ -83,7 +83,7 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
         int [] grid = getGridSize();
-        if (x > grid[0] || y > grid[1]){
+        if (x >= grid[0] || y >= grid[1] || x < 0 || y < 0){
             throw new InvalidLocationException("Grid location out of bounds.");
         }
         if (name.equals(""))
@@ -176,7 +176,7 @@ public class CityRescueImpl implements CityRescue {
                 }
             }
         }
-        if (homeStation.maxUnits - numUnitsAtStat == 0){
+        if (numUnitsAtStat >= homeStation.maxUnits){
             throw new IllegalStateException("The Station has reached max units.");      
         }
 
