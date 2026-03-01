@@ -9,6 +9,7 @@ public class Incident {
     int x;
     int y;
     int ID;
+   
 
     public Incident(IncidentType type2, int severity, int _x, int _y, int incidentId) {
         type = type2;
@@ -16,6 +17,7 @@ public class Incident {
         x = _x;
         y = _y;
         ID = incidentId;
+    
 
 
 
