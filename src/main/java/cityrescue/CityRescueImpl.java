@@ -217,7 +217,10 @@ public class CityRescueImpl implements CityRescue {
         {
             throw new IDNotRecognisedException("Unit ID is invalid");
         }
-        if(units[unitId-1].status!=UnitStatus.EN_ROUTE && units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
+        if(units[unitId-1].status!=UnitStatus.EN_ROUTE && units[unitId-1].status!=UnitStatus.AT_SCENE) {
+            units[unitId-1] = null;
+            unit_num -= 1;
+        }
         else throw new IllegalStateException("Unit cannot be En route or At scene."); 
     }
 
@@ -328,6 +331,7 @@ public class CityRescueImpl implements CityRescue {
         }
         incident.setStatus(IncidentStatus.CANCELLED);
         incidents[incidentId - 1] = incident;
+        incident_num -= 1;
     }
 
     @Override
