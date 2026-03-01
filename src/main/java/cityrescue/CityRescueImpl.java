@@ -107,8 +107,17 @@ public class CityRescueImpl implements CityRescue {
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
         if (stations[stationId-1] == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // TODO illegalState
+            throw new IDNotRecognisedException("Station ID is invalid");
         }
+        boolean unitFound = false;
+        for (Unit unit: units) {
+            if (unit != null) {
+                if (unit.stationID == stationId){
+                    unitFound = true;
+                }
+            }
+        }
+        if(unitFound) throw new IllegalStateException("Station still has units assigned.");
         stations[stationId-1] = null;
         station_num -= 1;
 
@@ -119,18 +128,33 @@ public class CityRescueImpl implements CityRescue {
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
         if (stations[stationId-1] == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // TODO Invalid Capacity
+            throw new IDNotRecognisedException("Station ID is invalid"); 
         }
-        stations[stationId-1].maxUnits = maxUnits; 
+        int unitsFound = 0;
+        for (Unit unit: units) {
+            if (unit != null) {
+                if (unit.stationID == stationId){
+                    unitsFound += 1;
+                }
+            }
+        }
+        if (0 < maxUnits && maxUnits >= unitsFound){ 
+            stations[stationId-1].maxUnits = maxUnits; 
+        }
+        else throw new InvalidCapacityException("Max Units is below zero or above existing units");
         
     }
 
     @Override
     public int[] getStationIds() {
         int[] stationIDs = new int[station_num];
-        for (int i = 0; i < stationIDs.length; i++) {
-            stationIDs[i] = stations[i].id; // use getters
-            
+        int count = 0;
+        for (int i = 0; i < stations.length; i++) {
+            if (stations[i] != null){
+                stationIDs[count] = stations[i].id;
+                count += 1;
+
+            }
         }
         return stationIDs;
     }
@@ -140,7 +164,7 @@ public class CityRescueImpl implements CityRescue {
         Station homeStation = stations[stationId-1];
         if (homeStation == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // TODO InvalidUnit, illegalstate
+            throw new IDNotRecognisedException("Station ID is invalid"); // TODO clarify which is which
         }
         
 
@@ -191,9 +215,9 @@ public class CityRescueImpl implements CityRescue {
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
         if (units[unitId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); // TODO IllegalState
+            throw new IDNotRecognisedException("Unit ID is invalid");
         }
-        if(units[unitId-1].status!=UnitStatus.EN_ROUTE||units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
+        if(units[unitId-1].status!=UnitStatus.EN_ROUTE && units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
         else throw new IllegalStateException("Unit cannot be En route or At scene."); 
     }
 
@@ -205,11 +229,15 @@ public class CityRescueImpl implements CityRescue {
         }
         if (units[unitId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); // TODO IllegalState
+            throw new IDNotRecognisedException("Unit ID is invalid"); 
+        }
+        if (units[unitId-1].status == UnitStatus.AT_SCENE || units[unitId-1].status == UnitStatus.EN_ROUTE) {
+            throw new IllegalStateException("Unit is en route or at scene.");
         }
 
         units[unitId-1].x_dest = stations[newStationId-1].xCoord;
         units[unitId-1].y_dest = stations[newStationId-1].yCoord;
+        units[unitId-1].stationID = newStationId;
     }
 
     @Override
@@ -233,9 +261,14 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getUnitIds() {
-        int[] unitIds = new int[unit_num-1];
-        for (int i = 0; i < unitIds.length; i++) {
-            unitIds[i] = units[i].unitID;
+        int[] unitIds = new int[unit_num];
+        int count = 0;
+        for (int i = 0; i < units.length; i++) {
+            if (units[i] != null){
+                unitIds[count] = units[i].unitID;
+                count += 1;
+
+            }
         }
         return unitIds;
     }
@@ -305,9 +338,14 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getIncidentIds() {
-        int[] incidentIds = new int[incident_num-1];
-        for (int i = 0; i < incidentIds.length; i++) {
-            incidentIds[i] = units[i].unitID;
+        int[] incidentIds = new int[incident_num];
+        int count = 0;
+        for (int i = 0; i < incidents.length; i++) {
+            if (incidents[i] != null){
+                incidentIds[count] = incidents[i].ID;
+                count += 1;
+
+            }
         }
         return incidentIds;
     }
@@ -316,11 +354,17 @@ public class CityRescueImpl implements CityRescue {
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
         if (incidents[incidentId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); 
+            throw new IDNotRecognisedException("Incident ID is invalid"); 
         }
         Incident incident = incidents[incidentId-1];
+        int unitId = -1;
+        for (Unit unit : units) {
+            if (unit != null && unit.incidentId == incident.ID) {
+                unitId = unit.unitID;
+            }
+        }
 
-        String view = String.format("I#%d TYPE=%s SEV=%d LOC=(%d,%d) STATUS=%s UNIT=%d", incident.ID, incident.type, incident.severity, incident.x, incident.y, incident.status, -1);
+        String view = String.format("I#%d TYPE=%s SEV=%d LOC=(%d,%d) STATUS=%s UNIT=%d", incident.ID, incident.type, incident.severity, incident.x, incident.y, incident.status, unitId); 
         return view;
     }
 
