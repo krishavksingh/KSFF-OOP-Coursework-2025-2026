@@ -107,7 +107,7 @@ public class CityRescueImpl implements CityRescue {
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
         if (stations[stationId-1] == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // Do illegalState
+            throw new IDNotRecognisedException("Station ID is invalid"); // TODO illegalState
         }
         stations[stationId-1] = null;
         station_num -= 1;
@@ -119,7 +119,7 @@ public class CityRescueImpl implements CityRescue {
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
         if (stations[stationId-1] == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // do Invalid Capacity
+            throw new IDNotRecognisedException("Station ID is invalid"); // TODO Invalid Capacity
         }
         stations[stationId-1].maxUnits = maxUnits; 
         
@@ -140,8 +140,9 @@ public class CityRescueImpl implements CityRescue {
         Station homeStation = stations[stationId-1];
         if (homeStation == null)
         {
-            throw new IDNotRecognisedException("Station ID is invalid"); // do Invalid Capacity
+            throw new IDNotRecognisedException("Station ID is invalid"); // TODO InvalidUnit, illegalstate
         }
+        
 
         int numUnitsAtStat = 0;
         for (Unit unit: units) {
@@ -152,7 +153,7 @@ public class CityRescueImpl implements CityRescue {
             }
         }
         if (homeStation.maxUnits - numUnitsAtStat == 0){
-            throw new InvalidUnitException("The Station has reached max units.");      
+            throw new IllegalStateException("The Station has reached max units.");      
         }
 
         
@@ -190,7 +191,7 @@ public class CityRescueImpl implements CityRescue {
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
         if (units[unitId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
+            throw new IDNotRecognisedException("Unit ID is invalid"); // TODO IllegalState
         }
         if(units[unitId-1].status!=UnitStatus.EN_ROUTE||units[unitId-1].status!=UnitStatus.AT_SCENE) units[unitId-1] = null;
         else throw new IllegalStateException("Unit cannot be En route or At scene."); 
@@ -204,7 +205,7 @@ public class CityRescueImpl implements CityRescue {
         }
         if (units[unitId-1] == null)
         {
-            throw new IDNotRecognisedException("Unit ID is invalid"); // do IllegalState
+            throw new IDNotRecognisedException("Unit ID is invalid"); // TODO IllegalState
         }
 
         units[unitId-1].x_dest = stations[newStationId-1].xCoord;
@@ -250,20 +251,50 @@ public class CityRescueImpl implements CityRescue {
         String incident;
         if (unit.incidentId == -1) incident = "-";
         else incident = ((Integer)unit.incidentId).toString();
-        String view = String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s WORK=%d", unit.unitID, unit.stationID, unit.x, unit.y, unit.status, incident, unit.worktick);
+        String view = String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s WORK=%d", unit.unitID, unit.type, unit.stationID, unit.x, unit.y, unit.status, incident, unit.worktick);
         return view;
     }
 
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (severity < 1 || severity > 5) {
+            throw new InvalidSeverityException("Severity must be between 1 and 5.");
+        }
+        
+        int[] grid = getGridSize();
+        if (x < 0 || y < 0 || x >= grid[0] || y >= grid[1]) {
+            throw new InvalidLocationException("Incident location out of bounds.");
+        }
+        int incidentId = nextIncidentId;
+        Incident incident = new Incident(type, severity, x, y, incidentId);
+        incidents[incidentId - 1] = incident;
+        incident_num += 1;
+        nextIncidentId += 1;
+        return incidentId;
     }
 
     @Override
     public void cancelIncident(int incidentId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidentId <= 0 || incidentId >= nextIncidentId || incidents[incidentId - 1] == null) {
+            throw new IDNotRecognisedException("Incident ID is invalid");
+        }
+        Incident incident = incidents[incidentId - 1];
+        if (incident.status != IncidentStatus.REPORTED && incident.status != IncidentStatus.DISPATCHED) {
+            throw new IllegalStateException("Incident cannot be cancelled in its current state");
+        }
+        for (int i = 0; i < units.length; i++) {
+            Unit unit = units[i];
+            if (unit != null) {
+                if (unit.incidentId == incidentId) {
+                    units[i].incidentId = -1;
+                    units[i].status = UnitStatus.IDLE;
+
+                }
+            }
+            
+        }
+        incident.status = IncidentStatus.CANCELLED;
+        incidents[incidentId - 1] = incident;
     }
 
     @Override
@@ -274,14 +305,23 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getIncidentIds() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] incidentIds = new int[incident_num-1];
+        for (int i = 0; i < incidentIds.length; i++) {
+            incidentIds[i] = units[i].unitID;
+        }
+        return incidentIds;
     }
 
     @Override
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidents[incidentId-1] == null)
+        {
+            throw new IDNotRecognisedException("Unit ID is invalid"); 
+        }
+        Incident incident = incidents[incidentId-1];
+
+        String view = String.format("I#%d TYPE=%s SEV=%d LOC=(%d,%d) STATUS=%s UNIT=%d", incident.ID, incident.type, incident.severity, incident.x, incident.y, incident.status, -1);
+        return view;
     }
 
     @Override
