@@ -1,8 +1,19 @@
 package cityrescue;
 
-import cityrescue.enums.*;
-import cityrescue.exceptions.*;
-import cityrescue.units.*;
+import cityrescue.enums.IncidentStatus;
+import cityrescue.enums.IncidentType;
+import cityrescue.enums.UnitStatus;
+import cityrescue.enums.UnitType;
+import cityrescue.exceptions.IDNotRecognisedException;
+import cityrescue.exceptions.InvalidCapacityException;
+import cityrescue.exceptions.InvalidGridException;
+import cityrescue.exceptions.InvalidLocationException;
+import cityrescue.exceptions.InvalidNameException;
+import cityrescue.exceptions.InvalidSeverityException;
+import cityrescue.exceptions.InvalidUnitException;
+import cityrescue.units.Ambulance;
+import cityrescue.units.FireEngine;
+import cityrescue.units.PoliceCar;
 
 /**
  * CityRescueImpl (Starter)
@@ -336,8 +347,19 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void escalateIncident(int incidentId, int newSeverity) throws IDNotRecognisedException, InvalidSeverityException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidentId <= 0 || incidentId >= nextIncidentId || incidents[incidentId -1] == null) {
+            throw new IDNotRecognisedException("Incident ID is invalid");
+        }
+        if (newSeverity < 1 || newSeverity > 5) {
+            throw new InvalidSeverityException("Severity must be between 1 and 5");
+        }
+        Incident incident = incidents[incidentId -1];
+
+        if (incident.getStatus() == IncidentStatus.RESOLVED || incident.getStatus() == IncidentStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot escalate resolved or cancelled incident");
+        }
+        incident.setSeverity(newSeverity);
+
     }
 
     @Override
