@@ -1,5 +1,7 @@
 package cityrescue.units;
-import cityrescue.*;
+import cityrescue.Incident;
+import cityrescue.Unit;
+import cityrescue.enums.IncidentType;
 import cityrescue.enums.UnitType;
 
 public class FireEngine extends Unit {
@@ -8,6 +10,15 @@ public class FireEngine extends Unit {
         super(stationId, unitId, x, y);
         type = UnitType.FIRE_ENGINE;
         
+    }
+    @Override
+    public boolean canHandle(Incident incident){
+        return incident.getType()==IncidentType.FIRE;
+    }
+
+    @Override
+    public int getRequiredWorkTicks(){
+        return 4;
     }
     
 }
