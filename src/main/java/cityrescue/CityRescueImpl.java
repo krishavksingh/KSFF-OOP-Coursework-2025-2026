@@ -396,14 +396,138 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void dispatch() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
+        for (int i = 0; i < nextIncidentId; i++) {
+            Incident incident = incidents[i];
 
+            if (incident == null || incident.getStatus() != IncidentStatus.REPORTED) continue;
+
+            Unit bestUnit = null;
+            int bestDistance = Integer.MAX_VALUE;
+            //search all units
+            for (int j = 0; j < nextUnitId; j++) {
+
+                Unit unit = units[j];
+
+                if (unit == null) continue;
+            //rules
+                if (unit.getStatus() != UnitStatus.IDLE) continue;
+
+                if (!matches(incident, unit)) continue;
+            //manhattan distance
+                int distance = Math.abs(unit.getX() - incident.getX()) + Math.abs(unit.getY() - incident.getY());
+                if (bestUnit == null) {bestUnit = unit; bestDistance = distance;}
+
+                else {
+                    if (distance < bestDistance) {bestUnit = unit; bestDistance = distance;}
+
+                    else if (distance == bestDistance) {
+                        //2nd tie break lowest unitID
+                        if (unit.getUnitID() < bestUnit.getUnitID()){bestUnit = unit;}
+
+                        else if (unit.getUnitID() == bestUnit.getUnitID()) {
+                            //3rd tie break lowest stationID
+                            if(unit.getStationID() < bestUnit.getStationID()){
+                                bestUnit= unit;
+                            }
+                        }}
+                }
+
+                //assign if found
+            }
+            if (bestUnit!= null) {
+                bestUnit.setStatus(UnitStatus.EN_ROUTE);
+                bestUnit.setIncidentId(incident.getId());
+
+                bestUnit.setX_dest(incident.getX());
+                bestUnit.setY_dest(incident.getY());
+
+                incident.setStatus(IncidentStatus.DISPATCHED);
+            }
+        }
+        
+    }
+    private boolean matches(Incident incident, Unit unit){
+        if (incident.getType() == IncidentType.MEDICAL && unit.getType() == UnitType.AMBULANCE) return true;
+        if (incident.getType() == IncidentType.FIRE && unit.getType() == UnitType.FIRE_ENGINE) return true;
+        if (incident.getType() == IncidentType.CRIME && unit.getType() == UnitType.POLICE_CAR) return true;
+        return false;
+    }
+    private int tickCount = 0;
     @Override
     public void tick() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        tickCount++;
+        //move EN_ROUTE units
+        for (int i = 0; i < nextUnitId; i++) {
+            Unit unit = units[i];
+            if (unit == null) continue;
+            if (unit.getStatus() == UnitStatus.EN_ROUTE) {
+                int x = unit.getX();
+                int y = unit.getY();
+                int xDest = unit.getX_dest();
+                int yDest = unit.getY_dest();
+
+                if (x < xDest) unit.setX(x+1);
+                else if (x>xDest) unit.setX(x-1);
+                else if (y< yDest) unit.setY(y+1);
+                else if (y>yDest) unit.setY(y-1);
+
+            }
+        }
+        //mark arrivals
+        for (int i=0; i < nextUnitId; i++) {
+            Unit unit = units[i];
+            if (unit ==null) continue;
+            if (unit.getStatus() == UnitStatus.EN_ROUTE){
+                if (unit.getX()== unit.getX_dest() && unit.getY() == unit.getY_dest()) {
+                    unit.setStatus(UnitStatus.AT_SCENE);
+                    unit.setWorktick(0);
+
+                    Incident incident = incidents[unit.getIncidentId()];
+                    if (incident != null) {
+                        incident.setStatus(IncidentStatus.IN_PROGRESS);
+                    }
+                }
+            }
+        }
+        //process on scene work
+        for (int i=0;i<nextUnitId; i++){
+            Unit unit = units[i];
+            if (unit==null) continue;
+            if (unit.getStatus()== UnitStatus.AT_SCENE){
+                unit.setWorktick(unit.getWorktick()+1);
+
+            }
+        }
+        //reslove completed incidents
+        for (int i=0; i<nextIncidentId; i++){
+            Incident incident = incidents[i];
+            if (incident == null) continue;
+
+            for (int j=0;j<nextUnitId;j++){
+                Unit unit = units[j];
+
+                if (unit.getIncidentId()== incident.getId() && unit.getStatus()== UnitStatus.AT_SCENE){
+                int required = 0;
+                switch (unit.getType()) {
+                    case AMBULANCE: required = 2; break;
+                    case POLICE_CAR: required = 3; break;
+                    case FIRE_ENGINE: required = 4; break;
+
+                }
+                if (unit.getWorktick() >= required){
+                    incident.setStatus(IncidentStatus.RESOLVED);
+                    unit.setStatus(UnitStatus.IDLE);
+                    unit.setIncidentId(-1);
+                    unit.setWorktick(0);
+
+                }
+            }
+
+            }
+            
+        }
+
+        
     }
 
     @Override
