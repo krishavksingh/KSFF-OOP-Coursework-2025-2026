@@ -500,7 +500,7 @@ public class CityRescueImpl implements CityRescue {
 
             for (int j=0;j<nextUnitId;j++){
                 Unit unit = units[j];
-
+                if (unit==null) continue;
                 if (unit.getIncidentId()== incident.getId() && unit.getStatus()== UnitStatus.AT_SCENE){
                 if (unit.getWorktick() >= unit.getRequiredWorkTicks()){
                     incident.setStatus(IncidentStatus.RESOLVED);
@@ -510,7 +510,7 @@ public class CityRescueImpl implements CityRescue {
                 }
 
                 }
-                
+
             }
 
         }
