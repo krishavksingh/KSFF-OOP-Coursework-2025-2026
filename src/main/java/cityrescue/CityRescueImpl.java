@@ -1,8 +1,19 @@
 package cityrescue;
 
-import cityrescue.enums.*;
-import cityrescue.exceptions.*;
-import cityrescue.units.*;
+import cityrescue.enums.IncidentStatus;
+import cityrescue.enums.IncidentType;
+import cityrescue.enums.UnitStatus;
+import cityrescue.enums.UnitType;
+import cityrescue.exceptions.IDNotRecognisedException;
+import cityrescue.exceptions.InvalidCapacityException;
+import cityrescue.exceptions.InvalidGridException;
+import cityrescue.exceptions.InvalidLocationException;
+import cityrescue.exceptions.InvalidNameException;
+import cityrescue.exceptions.InvalidSeverityException;
+import cityrescue.exceptions.InvalidUnitException;
+import cityrescue.units.Ambulance;
+import cityrescue.units.FireEngine;
+import cityrescue.units.PoliceCar;
 
 /**
  * CityRescueImpl (Starter)
@@ -336,8 +347,19 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void escalateIncident(int incidentId, int newSeverity) throws IDNotRecognisedException, InvalidSeverityException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidentId <= 0 || incidentId >= nextIncidentId || incidents[incidentId -1] == null) {
+            throw new IDNotRecognisedException("Incident ID is invalid");
+        }
+        if (newSeverity < 1 || newSeverity > 5) {
+            throw new InvalidSeverityException("Severity must be between 1 and 5");
+        }
+        Incident incident = incidents[incidentId -1];
+
+        if (incident.getStatus() == IncidentStatus.RESOLVED || incident.getStatus() == IncidentStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot escalate resolved or cancelled incident");
+        }
+        incident.setSeverity(newSeverity);
+
     }
 
     @Override
@@ -374,19 +396,163 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void dispatch() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
+        for (int i = 0; i < nextIncidentId; i++) {
+            Incident incident = incidents[i];
 
+            if (incident == null || incident.getStatus() != IncidentStatus.REPORTED) continue;
+
+            Unit bestUnit = null;
+            int bestDistance = Integer.MAX_VALUE;
+            //search all units
+            for (int j = 0; j < nextUnitId; j++) {
+
+                Unit unit = units[j];
+
+                if (unit == null) continue;
+            //rules
+                if (unit.getStatus() != UnitStatus.IDLE) continue;
+
+                if (!unit.canHandle(incident)) continue;
+            //manhattan distance
+                int distance = Math.abs(unit.getX() - incident.getX()) + Math.abs(unit.getY() - incident.getY());
+                if (bestUnit == null) {bestUnit = unit; bestDistance = distance;}
+
+                else {
+                    if (distance < bestDistance) {bestUnit = unit; bestDistance = distance;}
+
+                    else if (distance == bestDistance) {
+                        //2nd tie break lowest unitID
+                        if (unit.getUnitID() < bestUnit.getUnitID()){bestUnit = unit;}
+
+                        else if (unit.getUnitID() == bestUnit.getUnitID()) {
+                            //3rd tie break lowest stationID
+                            if(unit.getStationID() < bestUnit.getStationID()){
+                                bestUnit= unit;
+                            }
+                        }}
+                }
+
+                //assign if found
+            }
+            if (bestUnit!= null) {
+                bestUnit.setStatus(UnitStatus.EN_ROUTE);
+                bestUnit.setIncidentId(incident.getId());
+
+                bestUnit.setX_dest(incident.getX());
+                bestUnit.setY_dest(incident.getY());
+
+                incident.setStatus(IncidentStatus.DISPATCHED);
+            }
+        }
+        
+    }
+    
+    private int tickCount = 0;
     @Override
     public void tick() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        tickCount++;
+        //move EN_ROUTE units
+        for (int i = 0; i < nextUnitId; i++) {
+            Unit unit = units[i];
+            if (unit == null) continue;
+            if (unit.getStatus() == UnitStatus.EN_ROUTE) {
+                int x = unit.getX();
+                int y = unit.getY();
+                int xDest = unit.getX_dest();
+                int yDest = unit.getY_dest();
+
+                if (x < xDest) unit.setX(x+1);
+                else if (x>xDest) unit.setX(x-1);
+                else if (y< yDest) unit.setY(y+1);
+                else if (y>yDest) unit.setY(y-1);
+
+            }
+        }
+        //mark arrivals
+        for (int i=0; i < nextUnitId; i++) {
+            Unit unit = units[i];
+            if (unit ==null) continue;
+            if (unit.getStatus() == UnitStatus.EN_ROUTE){
+                if (unit.getX()== unit.getX_dest() && unit.getY() == unit.getY_dest()) {
+                    unit.setStatus(UnitStatus.AT_SCENE);
+                    unit.setWorktick(0);
+
+                    Incident incident = incidents[unit.getIncidentId()];
+                    if (incident != null) {
+                        incident.setStatus(IncidentStatus.IN_PROGRESS);
+                    }
+                }
+            }
+        }
+        //process on scene work
+        for (int i=0;i<nextUnitId; i++){
+            Unit unit = units[i];
+            if (unit==null) continue;
+            if (unit.getStatus()== UnitStatus.AT_SCENE){
+                unit.setWorktick(unit.getWorktick()+1);
+
+            }
+        }
+        //reslove completed incidents
+        for (int i=0; i<nextIncidentId; i++){
+            Incident incident = incidents[i];
+            if (incident == null) continue;
+
+            for (int j=0;j<nextUnitId;j++){
+                Unit unit = units[j];
+                if (unit==null) continue;
+                if (unit.getIncidentId()== incident.getId() && unit.getStatus()== UnitStatus.AT_SCENE){
+                if (unit.getWorktick() >= unit.getRequiredWorkTicks()){
+                    incident.setStatus(IncidentStatus.RESOLVED);
+                    unit.setStatus(UnitStatus.IDLE);
+                    unit.setIncidentId(-1);
+                    unit.setWorktick(0);
+                }
+
+                }
+
+            }
+
+        }
+
+        
     }
 
     @Override
     public String getStatus() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        StringBuilder sb = new StringBuilder();
+        //header
+        sb.append(String.format("TICK=%d\n", tickCount));
+        sb.append(String.format("STATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", nextStationId, nextUnitId, nextIncidentId, map.getObstacleCount()));
+
+        //incidents
+        sb.append("INCIDENTS ");
+        for (int i = 0; i < nextIncidentId; i++){
+            Incident inc = incidents[i];
+            if (inc == null) continue;
+
+            int assignedUnit = -1;
+            for (int j=0; j < nextUnitId; j++){
+                Unit u = units[j];
+                if (u != null && u.getIncidentId() == inc.getId()) {assignedUnit = u.getUnitID(); break;}
+
+            }
+            sb.append(String.format("I#%d TYPE=%s SEV=%d LOC=(%d,%d) STATUS=%s UNIT=%s ", inc.getId(), inc.getType(), inc.getSeverity(), inc.getX(), inc.getY(), inc.getStatus(), (assignedUnit==-1? "-":assignedUnit)));
+        }
+        sb.append("\n");
+        //units
+        sb.append("UNITS\n");
+        for (int i = 0; i < nextUnitId; i++){
+            Unit u = units[i];
+            if (u == null) continue;
+
+            sb.append(String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s%s\n", u.getUnitID(), u.getType(), u.getStationID(), u.getX(), u.getY(), u.getStatus(), (u.getIncidentId()==-1? "-":u.getIncidentId()), (u.getStatus()==UnitStatus.AT_SCENE? " WORK=" + u.getWorktick():"")));
+
+
+        }
+        return sb.toString();
+
+
+        
     }
 }
