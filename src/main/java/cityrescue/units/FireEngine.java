@@ -15,5 +15,10 @@ public class FireEngine extends Unit {
     public boolean canHandle(Incident incident){
         return incident.getType()==IncidentType.FIRE;
     }
+
+    @Override
+    public int getRequiredWorkTicks(){
+        return 4;
+    }
     
 }

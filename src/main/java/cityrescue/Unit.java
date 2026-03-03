@@ -110,5 +110,7 @@ public abstract class Unit {
 
     public abstract boolean canHandle(Incident incident);
 
+    public abstract int getRequiredWorkTicks();
+
     
 }

@@ -15,4 +15,9 @@ public class Ambulance extends Unit {
         return incident.getType() == IncidentType.MEDICAL;
     }
     
+    @Override
+    public int getRequiredWorkTicks(){
+        return 2;
+    }
+    
 }

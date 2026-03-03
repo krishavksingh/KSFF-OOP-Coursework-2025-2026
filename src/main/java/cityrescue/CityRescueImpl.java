@@ -502,24 +502,17 @@ public class CityRescueImpl implements CityRescue {
                 Unit unit = units[j];
 
                 if (unit.getIncidentId()== incident.getId() && unit.getStatus()== UnitStatus.AT_SCENE){
-                int required = 0;
-                switch (unit.getType()) {
-                    case AMBULANCE: required = 2; break;
-                    case POLICE_CAR: required = 3; break;
-                    case FIRE_ENGINE: required = 4; break;
-
-                }
-                if (unit.getWorktick() >= required){
+                if (unit.getWorktick() >= unit.getRequiredWorkTicks()){
                     incident.setStatus(IncidentStatus.RESOLVED);
                     unit.setStatus(UnitStatus.IDLE);
                     unit.setIncidentId(-1);
                     unit.setWorktick(0);
+                }
 
                 }
+                
             }
 
-            }
-            
         }
 
         
