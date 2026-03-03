@@ -1,8 +1,9 @@
 package cityrescue;
 
-import cityrescue.enums.*;
+import cityrescue.enums.UnitStatus;
+import cityrescue.enums.UnitType;
 
-public class Unit {
+public abstract class Unit {
     protected UnitType type;
     protected UnitStatus status;
     protected int stationID;
@@ -106,4 +107,8 @@ public class Unit {
     public void setWorktick(int worktick) {
         this.worktick = worktick;
     }
+
+    public abstract boolean canHandle(Incident incident);
+
+    
 }
