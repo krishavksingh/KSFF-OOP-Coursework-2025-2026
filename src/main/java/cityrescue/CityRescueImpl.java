@@ -412,7 +412,7 @@ public class CityRescueImpl implements CityRescue {
             //rules
                 if (unit.getStatus() != UnitStatus.IDLE) continue;
 
-                if (!matches(incident, unit)) continue;
+                if (!unit.canHandle(incident)) continue;
             //manhattan distance
                 int distance = Math.abs(unit.getX() - incident.getX()) + Math.abs(unit.getY() - incident.getY());
                 if (bestUnit == null) {bestUnit = unit; bestDistance = distance;}
@@ -446,12 +446,7 @@ public class CityRescueImpl implements CityRescue {
         }
         
     }
-    private boolean matches(Incident incident, Unit unit){
-        if (incident.getType() == IncidentType.MEDICAL && unit.getType() == UnitType.AMBULANCE) return true;
-        if (incident.getType() == IncidentType.FIRE && unit.getType() == UnitType.FIRE_ENGINE) return true;
-        if (incident.getType() == IncidentType.CRIME && unit.getType() == UnitType.POLICE_CAR) return true;
-        return false;
-    }
+    
     private int tickCount = 0;
     @Override
     public void tick() {
