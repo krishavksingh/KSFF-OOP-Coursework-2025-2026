@@ -535,7 +535,7 @@ public class CityRescueImpl implements CityRescue {
         StringBuilder sb = new StringBuilder();
         //header
         sb.append(String.format("TICK=%d\n", tickCount));
-        sb.append(String.format("STATIONS=&d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", nextStationId, nextUnitId, nextIncidentId, map.getObstacleCount()));
+        sb.append(String.format("STATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", nextStationId, nextUnitId, nextIncidentId, map.getObstacleCount()));
 
         //incidents
         sb.append("INCIDENTS ");
@@ -549,7 +549,7 @@ public class CityRescueImpl implements CityRescue {
                 if (u != null && u.getIncidentId() == inc.getId()) {assignedUnit = u.getUnitID(); break;}
 
             }
-            sb.append(String.format("I#%d TYPE=%s SEV=%d LOC=(%d, %d) STATUS=%s UNIT=%s ", inc.getId(), inc.getType(), inc.getSeverity(), inc.getX(), inc.getY(), inc.getStatus(), (assignedUnit==-1? "-":assignedUnit)));
+            sb.append(String.format("I#%d TYPE=%s SEV=%d LOC=(%d,%d) STATUS=%s UNIT=%s ", inc.getId(), inc.getType(), inc.getSeverity(), inc.getX(), inc.getY(), inc.getStatus(), (assignedUnit==-1? "-":assignedUnit)));
         }
         sb.append("\n");
         //units
@@ -558,7 +558,7 @@ public class CityRescueImpl implements CityRescue {
             Unit u = units[i];
             if (u == null) continue;
 
-            sb.append(String.format("U#%d TYPE=%s HOME=%d LOC=(%d, %d) STATUS=%s INCIDENT=%s%s\n", u.getUnitID(), u.getType(), u.getStationID(), u.getX(), u.getY(), u.getStatus(), (u.getIncidentId()==-1? "-":u.getIncidentId()), (u.getStatus()==UnitStatus.AT_SCENE? " WORK=" + u.getWorktick():"")));
+            sb.append(String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s%s\n", u.getUnitID(), u.getType(), u.getStationID(), u.getX(), u.getY(), u.getStatus(), (u.getIncidentId()==-1? "-":u.getIncidentId()), (u.getStatus()==UnitStatus.AT_SCENE? " WORK=" + u.getWorktick():"")));
 
 
         }
