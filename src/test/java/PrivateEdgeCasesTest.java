@@ -26,7 +26,7 @@ public class PrivateEdgeCasesTest {
             int uid = system.addUnit(sid, UnitType.AMBULANCE);
             assertEquals(i + 1, uid);
         }
-        assertThrows(IllegalStateException.class, () -> system.addUnit(sid, UnitType.AMBULANCE));
+        assertThrows(CapacityExceededException.class, () -> system.addUnit(sid, UnitType.AMBULANCE));
     }
 
 
