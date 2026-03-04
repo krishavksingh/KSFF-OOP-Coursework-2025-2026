@@ -40,7 +40,7 @@ public class CityRescueImpl implements CityRescue {
     int nextIncidentId;
     
     
-    // TODO: add fields (counters, tick, etc.)
+
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
@@ -503,7 +503,7 @@ public class CityRescueImpl implements CityRescue {
                 }
 
                 //assign if found
-                // TODO CHECK
+                
             }
             if (bestUnit!= null) {
                 bestUnit.setStatus(UnitStatus.EN_ROUTE);
