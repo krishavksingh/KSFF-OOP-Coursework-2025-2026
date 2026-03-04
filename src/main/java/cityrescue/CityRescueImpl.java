@@ -652,22 +652,51 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public void tick() {
         tickCount++;
-        //move EN_ROUTE units
-        for (int i = 0; i < nextUnitId; i++) {
+        //move EN_ROUTE unit
+        int[] grid = map.getSize();
+        for (int i=0; i<nextUnitId; i++){
             Unit unit = units[i];
-            if (unit == null) continue;
-            if (unit.getStatus() == UnitStatus.EN_ROUTE) {
-                int x = unit.getX();
-                int y = unit.getY();
-                int xDest = unit.getX_dest();
-                int yDest = unit.getY_dest();
+            if (unit==null) continue;
+            if (unit.getStatus() != UnitStatus.EN_ROUTE) continue;
+            int x = unit.getX();
+            int y = unit.getY();
+            int xDest = unit.getX_dest();
+            int yDest = unit.getY_dest();
 
-                if (x < xDest) unit.setX(x+1);
-                else if (x>xDest) unit.setX(x-1);
-                else if (y< yDest) unit.setY(y+1);
-                else if (y>yDest) unit.setY(y-1);
+            int currentDist = Math.abs(x-xDest)+ Math.abs(y-yDest);
 
+            int[][] moves = {{0,-1}, {1,0}, {0,1}, {-1,0}};
+
+            int chosenX=x;
+            int chosenY=y;
+            boolean moved = false;
+
+            for (int[] move : moves){
+                int newX= x + move[0]; int newY= y + move[1];
+
+                if (newX<0 || newY<0 || newX>= grid[0] || newY >= grid[1]) continue;
+                if (map.isBlocked (newX, newY)) continue;
+
+                int newDist = Math.abs(newX - xDest) + Math.abs(newY - yDest);
+
+                if (newDist < currentDist) {chosenX=newX; chosenY= newY; moved=true; break;}
             }
+            if (!moved){
+                for (int[] move : moves){
+                    int newX= x+ move[0];
+                    int newY= y+ move[1];
+
+                    if (newX < 0 || newY < 0 || newX >= grid[0] || newY >= grid[1]) continue;
+                    if (map.isBlocked(newX, newY)) continue;
+
+                    chosenX= newX;
+                    chosenY= newY;
+                    moved= true;
+                    break;
+                } 
+            }
+            if (moved){unit.setX(chosenX); unit.setY(chosenY);}
+
         }
         //mark arrivals
         for (int i=0; i < nextUnitId; i++) {
