@@ -171,7 +171,7 @@ public class PrivateEdgeCasesTest {
     void testCancelDispatchedIncidentResetsUnit() throws Exception {
         int s = system.addStation("A", 0, 0);
         system.setStationCapacity(s, 5);
-        int u = system.addUnit(s, UnitType.AMBULANCE);
+        int u = system.addUnit(s, UnitType.FIRE_ENGINE);
         int inc = system.reportIncident(IncidentType.FIRE, 3, 1,0);
 
         system.dispatch();
