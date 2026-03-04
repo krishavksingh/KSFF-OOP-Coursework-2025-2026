@@ -341,13 +341,13 @@ public class CityRescueImpl implements CityRescue {
         {
             throw new IDNotRecognisedException("Station ID is invalid"); 
         }}
-        catch(Exception e){ throw new IDNotRecognisedException("Station ID is invalid");}
+        catch(ArrayIndexOutOfBoundsException e){ throw new IDNotRecognisedException("Station ID is invalid");}
         try{
         if (units[unitId-1] == null)
         {
             throw new IDNotRecognisedException("Unit ID is invalid"); 
         }}
-        catch(Exception e)
+        catch(ArrayIndexOutOfBoundsException e)
         {
             throw new IDNotRecognisedException("Unit ID is invalid"); 
         }
@@ -400,7 +400,13 @@ public class CityRescueImpl implements CityRescue {
             }     
         }
         else {
-            units[unitId-1].status = UnitStatus.IDLE;
+            if (units[unitId-1].status == UnitStatus.OUT_OF_SERVICE){
+                units[unitId-1].status = UnitStatus.IDLE;
+            }
+            else{
+                throw new IllegalStateException("Unit must be out of service before being set to idle.");
+            } 
+            
         }
     }
     /**
