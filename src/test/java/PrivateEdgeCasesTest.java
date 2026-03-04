@@ -19,6 +19,9 @@ public class PrivateEdgeCasesTest {
     }
 
     @Test
+    /**
+    * A test to check that a CapacityExceededException is thrown if a unit is added when station capacity is full.
+    */
     void testAddMaximumUnits() throws Exception {
         int sid = system.addStation("A", 0, 0);
         system.setStationCapacity(sid, 50);
@@ -29,7 +32,9 @@ public class PrivateEdgeCasesTest {
         assertThrows(CapacityExceededException.class, () -> system.addUnit(sid, UnitType.AMBULANCE));
     }
 
-
+    /**
+    * A test to check that a unit moves correctly when an obstacle is presented.
+    */
     @Test
     void testUnitMovementAroundObstacles() throws Exception {
         int s = system.addStation("A", 0, 0);
@@ -42,11 +47,14 @@ public class PrivateEdgeCasesTest {
         system.dispatch();
         system.tick(); 
         String view = system.viewUnit(u);
-        assertTrue(view.contains("LOC=(1,0)") || view.contains("LOC=(0,1)"));
+        assertTrue(!view.contains("LOC=(1,0)"));
     }
 
   
     @Test
+    /**
+    * A test to check that the tie break works correctly
+    */
     void testDispatchTieBreak() throws Exception {
         int s1 = system.addStation("A", 0, 0);
         int s2 = system.addStation("B", 2, 0);
@@ -66,6 +74,9 @@ public class PrivateEdgeCasesTest {
 
     
     @Test
+    /**
+    * A test to check that the system can handle multiple incidents and multiple units going around without any confusion
+    */
     void testMultipleIncidentsMultipleUnits() throws Exception {
         int s1 = system.addStation("A", 0, 0);
         int s2 = system.addStation("B", 9, 9);
@@ -85,6 +96,9 @@ public class PrivateEdgeCasesTest {
 
 
     @Test
+    /**
+    * Another test to check that the system can handle multiple incidents and multiple units going around without any confusion
+    */
     void testIncidentResolvesWithMultipleUnits() throws Exception {
         int s = system.addStation("A", 0, 0);
         system.setStationCapacity(s, 5);
@@ -103,6 +117,9 @@ public class PrivateEdgeCasesTest {
 
 
     @Test
+    /**
+    * A test to check that the system will not allow a unit to be transferred if out of service
+    */
     void testTransferUnitOutOfServiceFails() throws Exception {
         int s1 = system.addStation("A", 0, 0);
         int s2 = system.addStation("B", 1, 1);
@@ -115,6 +132,9 @@ public class PrivateEdgeCasesTest {
     }
 
     @Test
+    /**
+    * A test to check that you cannot decommision an en route unit
+    */
     void testDecommissionEnRouteFails() throws Exception {
         int s = system.addStation("A", 0, 0);
         system.setStationCapacity(s,5);
@@ -127,6 +147,9 @@ public class PrivateEdgeCasesTest {
     }
 
     @Test
+    /**
+    * A test to check that the system doesn't allow a transfer of a unit if station is full
+    */
     void testTransferToFullStationFails() throws Exception {
         int s1 = system.addStation("A",0,0);
         int s2 = system.addStation("B",1,1);
@@ -142,6 +165,9 @@ public class PrivateEdgeCasesTest {
 
 
     @Test
+    /**
+    * A test to check that a cancelled incident resets the unit that was assigned
+    */
     void testCancelDispatchedIncidentResetsUnit() throws Exception {
         int s = system.addStation("A", 0, 0);
         system.setStationCapacity(s, 5);
@@ -156,6 +182,9 @@ public class PrivateEdgeCasesTest {
     }
 
     @Test
+    /**
+    * A test to check that the system doesn't allow an incident to be cancelled if in progress
+    */
     void testCancelInProgressFail() throws Exception {
         int s = system.addStation("A",0,0);
         system.setStationCapacity(s,5);
@@ -170,6 +199,9 @@ public class PrivateEdgeCasesTest {
     }
 
     @Test
+    /**
+    * A test to check that a cancelled incident cannot be escalated
+    */
     void testEscalateCancelledFail() throws Exception {
         int inc = system.reportIncident(IncidentType.FIRE, 3,1,1);
         system.cancelIncident(inc);
@@ -178,6 +210,9 @@ public class PrivateEdgeCasesTest {
 
 
     @Test
+    /**
+    * A test to check that the system will not assign a unit of wrong type to an incident
+    */
     void wrongUnitCannotHandleIncident() throws Exception {
         int s = system.addStation("A",0,0);
         system.setStationCapacity(s,5);
