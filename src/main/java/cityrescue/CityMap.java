@@ -28,6 +28,12 @@ public class CityMap { // Map Implementation containing rows cols and whether a 
     {
         blocked[row][col] = false;
     }
+    public boolean isBlocked(int row, int col) {
+        if (blocked[row][col]){
+            return true;
+        }
+        else return false;
+    }
     public int getObstacleCount() {
         int count=0;
         for (int i=0; i<gridRows; i++){
