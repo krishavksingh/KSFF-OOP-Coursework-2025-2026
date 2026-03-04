@@ -54,10 +54,8 @@ public class PrivateUnitTest {
     public void testDecommissionUnit() throws Exception {
         int unitId = rescue.addUnit(1, UnitType.AMBULANCE);
         int[] ids = rescue.getUnitIds();
-        System.out.println(ids);
         rescue.decommissionUnit(unitId);
         ids = rescue.getUnitIds();
-        System.out.println(ids);
         
         assertEquals(0, ids.length);
     }
