@@ -4,6 +4,7 @@ import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
 import cityrescue.enums.UnitStatus;
 import cityrescue.enums.UnitType;
+import cityrescue.exceptions.CapacityExceededException;
 import cityrescue.exceptions.IDNotRecognisedException;
 import cityrescue.exceptions.InvalidCapacityException;
 import cityrescue.exceptions.InvalidGridException;
@@ -93,6 +94,8 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
+        if (unit_num >= MAX_UNITS) {throw new CapacityExceededException("Maximum units (" + MAX_UNITS + ") exceeded.");}
+
         int [] grid = getGridSize();
         if (x >= grid[0] || y >= grid[1] || x < 0 || y < 0){
             throw new InvalidLocationException("Grid location out of bounds.");
@@ -182,6 +185,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
+        if (unit_num >= MAX_UNITS) {throw new CapacityExceededException("Maximum units (" + MAX_UNITS + ") exceeded.");}
         try{
             Station homeStation = stations[stationId-1];
             if (homeStation == null)
@@ -357,6 +361,8 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
+        if (incident_num >= MAX_INCIDENTS) {throw new CapacityExceededException("Maximum incidents (" + MAX_INCIDENTS + ") exceeded.");}
+        
         if (severity < 1 || severity > 5) {
             throw new InvalidSeverityException("Severity must be between 1 and 5.");
         }
