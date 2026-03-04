@@ -40,7 +40,7 @@ public class CityRescueImpl implements CityRescue {
     int nextIncidentId;
     
     
-    // TODO: add fields (counters, tick, etc.)
+
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
