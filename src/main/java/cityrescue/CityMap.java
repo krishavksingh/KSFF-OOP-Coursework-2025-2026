@@ -2,10 +2,16 @@ package cityrescue;
 
 import java.util.Arrays;
 
-public class CityMap { // Map Implementation containing rows cols and whether a space is blocked
+/**
+ * Map Implementation containing rows cols and whether a space is blocked
+ */
+public class CityMap {  
     private int gridRows;
     private int gridCols;
     private boolean[][] blocked;
+    /**
+     * Creates an instance of a CityMap object with the number of rows and columns (x, y) desired
+     */
     public CityMap(int rows, int cols)
     {
         gridCols = cols;
@@ -16,24 +22,39 @@ public class CityMap { // Map Implementation containing rows cols and whether a 
         }
         
     }
+    /**
+     * gets the size
+     */
     public int[] getSize()
     {
         return new int[]{gridRows, gridCols};
     }
+    /**
+     * sets position as blocked
+     */
     public void setBlocked(int row, int col)
     {
         blocked[row][col] = true;
     }
+    /**
+     * sets position as unblocked
+     */
     public void setUnblocked(int row, int col)
     {
         blocked[row][col] = false;
     }
+    /**
+     * checks if position is blocked
+     */
     public boolean isBlocked(int row, int col) {
         if (blocked[row][col]){
             return true;
         }
         else return false;
     }
+    /**
+     * get the number of obstacles
+     */
     public int getObstacleCount() {
         int count=0;
         for (int i=0; i<gridRows; i++){
